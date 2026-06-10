@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>JailbreakHub - Full Responsive</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+            background: #0a0f1a;
+        }
+
+        body {
+            font-family: 'Courier New', 'Segoe UI', monospace;
+            color: #c0e4ff;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* KONTAINER UTAMA - FULL LEBAR */
+        .app-wrapper {
+            max-width: 1600px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+        }
+
+        /* NAVBAR KOTAK - FULL LEBAR RESPONSIF */
+        .navbar {
+            background: #0a1030;
+            border: 2px solid #1e4a7a;
+            display: flex;
+            justify-content: center;
+            gap: clamp(10px, 4vw, 40px);
+            padding: clamp(12px, 2vh, 20px) clamp(16px, 4vw, 32px);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            box-shadow: 6px 6px 0 #030c1a;
+            width: 100%;
+        }
+
+        .nav-btn {
+            background: #030c1a;
+            border: 2px solid #2a6f9f;
+            color: #8acdff;
+            font-size: clamp(0.9rem, 4vw, 1.2rem);
+            font-weight: bold;
+            padding: clamp(8px, 1.5vh, 12px) clamp(16px, 5vw, 32px);
+            cursor: pointer;
+            font-family: monospace;
+            transition: 0.1s linear;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .nav-btn.active {
+            background: #1a4a6f;
+            color: white;
+            border-color: #5bc0ff;
+            box-shadow: 0 0 0 2px #0a2a4a;
+        }
+
+        /* PANEL */
+        .panel {
+            display: none;
+            width: 100%;
+        }
+
+        .panel.active-panel {
+            display: block;
+        }
+
+        /* BERANDA - FULL LEBAR */
+        .hero-box {
+            background: #0a1030;
+            border: 2px solid #1e4a7a;
+            padding: clamp(30px, 6vh, 60px) clamp(20px, 5vw, 50px);
+            text-align: center;
+            box-shadow: 8px 8px 0 #030c1a;
+            width: 100%;
+        }
+
+        .hero-box h2 {
+            font-size: clamp(1.6rem, 7vw, 2.8rem);
+            color: #7bcfff;
+            margin-bottom: 16px;
+            word-break: break-word;
+        }
+
+        .hero-box p {
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: clamp(12px, 3vw, 30px);
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: #030c1a;
+            border: 2px solid #2a6f9f;
+            padding: clamp(10px, 2vh, 18px) clamp(16px, 4vw, 32px);
+            font-weight: bold;
+            font-size: clamp(0.8rem, 3vw, 1rem);
+        }
+
+        /* PERPUSTAKAAN - SEARCH & GRID */
+        .search-card {
+            background: #0a1030;
+            border: 2px solid #1e4a7a;
+            padding: clamp(16px, 3vh, 28px);
+            margin-bottom: 28px;
+            box-shadow: 6px 6px 0 #030c1a;
+            width: 100%;
+        }
+
+        .search-card h3 {
+            font-size: clamp(1.2rem, 5vw, 1.8rem);
+            margin-bottom: 16px;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .search-row input, .search-row select {
+            flex: 2;
+            min-width: 160px;
+            background: #030c1a;
+            border: 2px solid #1e4a7a;
+            color: #c0e4ff;
+            padding: clamp(10px, 2vh, 14px) clamp(12px, 3vw, 20px);
+            font-family: monospace;
+            font-size: clamp(0.8rem, 3vw, 1rem);
+        }
+
+        .search-row button {
+            background: #030c1a;
+            border: 2px solid #2a6f9f;
+            color: #7bcfff;
+            padding: clamp(10px, 2vh, 14px) clamp(20px, 4vw, 32px);
+            font-weight: bold;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: clamp(0.8rem, 3vw, 1rem);
+        }
+
+        .jailbreak-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            width: 100%;
+        }
+
+        .card {
+            background: #0a1030;
+            border: 2px solid #1a3a5a;
+            padding: 18px;
+            transition: 0.1s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            border-color: #3a8fcf;
+            box-shadow: 4px 4px 0 #030c1a;
+        }
+
+        .badge {
+            background: #030c1a;
+            border: 1px solid #2a6f9f;
+            padding: 4px 12px;
+            display: inline-block;
+            margin-right: 6px;
+            margin-bottom: 8px;
+            font-size: 0.7rem;
+        }
+
+        .prompt-text {
+            background: #030c1a;
+            border-left: 4px solid #2a6f9f;
+            padding: 12px;
+            margin: 12px 0;
+            white-space: pre-wrap;
+            max-height: 140px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+            flex: 1;
+        }
+
+        .copy-btn, .del-btn {
+            background: #030c1a;
+            border: 1px solid #2a6f9f;
+            padding: 6px 14px;
+            cursor: pointer;
+            font-family: monospace;
+            margin-right: 8px;
+            color: #8acdff;
+            font-size: 0.75rem;
+        }
+
+        .del-btn {
+            border-color: #8f3a3a;
+            color: #ff9f9f;
+        }
+
+        /* BAGI PROMPT - FULL LEBAR RESPONSIF */
+        .bagi-box {
+            background: #0a1030;
+            border: 2px solid #1e4a7a;
+            padding: clamp(24px, 5vh, 48px) clamp(20px, 5vw, 48px);
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            box-shadow: 8px 8px 0 #030c1a;
+        }
+
+        .bagi-box h3 {
+            font-size: clamp(1.3rem, 5vw, 2rem);
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .upload-form input, .upload-form select, .upload-form textarea {
+            width: 100%;
+            background: #030c1a;
+            border: 2px solid #1e4a7a;
+            padding: clamp(10px, 2vh, 14px);
+            margin: 10px 0;
+            color: white;
+            font-family: monospace;
+            font-size: clamp(0.8rem, 3vw, 1rem);
+        }
+
+        .upload-form textarea {
+            height: clamp(100px, 20vh, 160px);
+        }
+
+        .upload-btn {
+            background: #030c1a;
+            border: 2px solid #2a6f9f;
+            color: #7bcfff;
+            padding: clamp(10px, 2vh, 14px);
+            width: 100%;
+            font-weight: bold;
+            font-family: monospace;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            cursor: pointer;
+            margin-top: 12px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            border-top: 2px solid #1e4a7a;
+            color: #5a8fbf;
+            width: 100%;
+            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+        }
+
+        /* SCROLLBAR KEREN */
+        ::-webkit-scrollbar {
+            width: 8px;
+            background: #0a1020;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1a4f7f;
+            border: 1px solid #0a2a4a;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 8px;
+            }
+            .navbar {
+                gap: 8px;
+            }
+            .nav-btn {
+                white-space: normal;
+                word-break: keep-all;
+            }
+            .search-row input, .search-row select, .search-row button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-wrapper">
+    <!-- NAVBAR 3 TOMBOL -->
+    <div class="navbar">
+        <button class="nav-btn" id="btnBeranda">🏠 BERANDA</button>
+        <button class="nav-btn" id="btnPerpustakaan">📚 PERPUSTAKAAN</button>
+        <button class="nav-btn" id="btnBagiPrompt">✍️ BAGI PROMPT</button>
+    </div>
+
+    <!-- PANEL 1: BERANDA -->
+    <div id="panelBeranda" class="panel">
+        <div class="hero-box">
+            <h2>🔲 JAILBREAKHUB 🔲</h2>
+            <p>Platform kotak buat cari, lihat, dan share prompt jailbreak — full layar</p>
+            <div class="stats">
+                <div class="stat-card">⚡ NO BATASAN</div>
+                <div class="stat-card">🌍 FIREBASE GLOBAL</div>
+                <div class="stat-card">📱 RESPONSIVE</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANEL 2: PERPUSTAKAAN -->
+    <div id="panelPerpustakaan" class="panel">
+        <div class="search-card">
+            <h3>📚 PERPUSTAKAAN JAILBREAK</h3>
+            <div class="search-row">
+                <input type="text" id="searchInput" placeholder="Cari prompt / judul / tag..." onkeyup="renderJailbreaks()">
+                <select id="platformFilter" onchange="renderJailbreaks()">
+                    <option value="all">SEMUA PLATFORM</option>
+                    <option value="Claude">Claude</option><option value="Deepseek">Deepseek</option>
+                    <option value="Gemini">Gemini</option><option value="Kimi">Kimi</option>
+                    <option value="Qwen">Qwen</option><option value="ChatGPT">ChatGPT</option>
+                    <option value="Perplexity">Perplexity</option><option value="Manus">Manus</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+                <button onclick="renderJailbreaks()">🔍 CARI</button>
+            </div>
+        </div>
+        <div id="jailbreakList" class="jailbreak-grid">
+            <div style="grid-column:1/-1; text-align:center; padding:40px;">🌀 LOADING PROMPT...</div>
+        </div>
+    </div>
+
+    <!-- PANEL 3: BAGI PROMPT -->
+    <div id="panelBagiPrompt" class="panel">
+        <div class="bagi-box">
+            <h3>📤 BAGI PROMPT JAILBREAK</h3>
+            <div class="upload-form">
+                <input type="text" id="jbTitle" placeholder="JUDUL PROMPT">
+                <select id="jbPlatform">
+                    <option value="Claude">Claude</option><option value="Deepseek">Deepseek</option>
+                    <option value="Gemini">Gemini</option><option value="Kimi">Kimi</option>
+                    <option value="Qwen">Qwen</option><option value="ChatGPT">ChatGPT</option>
+                    <option value="Perplexity">Perplexity</option><option value="Manus">Manus</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+                <textarea id="jbPrompt" placeholder="TULIS PROMPT JAILBREAK DISINI..."></textarea>
+                <input type="text" id="jbTags" placeholder="TAG: roleplay, devmode, bypass">
+                <button class="upload-btn" onclick="uploadJailbreak()">🌍 BAGIKAN KE KOMUNITAS</button>
+            </div>
+        </div>
+    </div>
+</div>
+<footer>© COPYRIGHT BY RIAN - KENTA | FULL LAYAR | UI KOTAK | FIREBASE GLOBAL</footer>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyB9ldayfS-rXaePniWzigiwlcf67a-apEA",
+        authDomain: "library-cc3bb.firebaseapp.com",
+        projectId: "library-cc3bb",
+        storageBucket: "library-cc3bb.firebasestorage.app",
+        messagingSenderId: "824486051106",
+        appId: "1:824486051106:web:31f6084e7403f23796797b"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    let jailbreaks = [];
+
+    // PANEL SWITCH
+    const panelBeranda = document.getElementById('panelBeranda');
+    const panelPerpus = document.getElementById('panelPerpustakaan');
+    const panelBagi = document.getElementById('panelBagiPrompt');
+    const btnBeranda = document.getElementById('btnBeranda');
+    const btnPerpus = document.getElementById('btnPerpustakaan');
+    const btnBagi = document.getElementById('btnBagiPrompt');
+
+    function setActivePanel(active) {
+        panelBeranda.classList.remove('active-panel');
+        panelPerpus.classList.remove('active-panel');
+        panelBagi.classList.remove('active-panel');
+        btnBeranda.classList.remove('active');
+        btnPerpus.classList.remove('active');
+        btnBagi.classList.remove('active');
+
+        if (active === 'beranda') {
+            panelBeranda.classList.add('active-panel');
+            btnBeranda.classList.add('active');
+        } else if (active === 'perpustakaan') {
+            panelPerpus.classList.add('active-panel');
+            btnPerpus.classList.add('active');
+        } else if (active === 'bagi') {
+            panelBagi.classList.add('active-panel');
+            btnBagi.classList.add('active');
+        }
+    }
+
+    btnBeranda.addEventListener('click', () => setActivePanel('beranda'));
+    btnPerpus.addEventListener('click', () => setActivePanel('perpustakaan'));
+    btnBagi.addEventListener('click', () => setActivePanel('bagi'));
+    setActivePanel('beranda');
+
+    // FIRESTORE
+    async function loadJailbreaks() {
+        try {
+            const snapshot = await db.collection("jailbreaks").orderBy("timestamp", "desc").get();
+            jailbreaks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderJailbreaks();
+        } catch(e) {
+            document.getElementById("jailbreakList").innerHTML = `<div style="grid-column:1/-1;">❌ ERROR: ${e.message}</div>`;
+        }
+    }
+
+    async function uploadJailbreak() {
+        const title = document.getElementById("jbTitle").value.trim();
+        const platform = document.getElementById("jbPlatform").value;
+        const promptText = document.getElementById("jbPrompt").value.trim();
+        const tagsRaw = document.getElementById("jbTags").value.trim();
+
+        if(!title || !promptText) {
+            alert("JUDUL & PROMPT GA BOLEH KOSONG!");
+            return;
+        }
+
+        const tags = tagsRaw ? tagsRaw.split(",").map(t=>t.trim().toLowerCase()) : [];
+        const newData = {
+            title, platform, prompt: promptText, tags,
+            uploader: "Anonymous",
+            timestamp: new Date().toISOString()
+        };
+
+        try {
+            await db.collection("jailbreaks").add(newData);
+            alert("✅ PROMPT BERHASIL DI BAGIKAN!");
+            document.getElementById("jbTitle").value = "";
+            document.getElementById("jbPrompt").value = "";
+            document.getElementById("jbTags").value = "";
+            loadJailbreaks();
+            setActivePanel('perpustakaan');
+        } catch(e) {
+            alert("GAGAL: " + e.message);
+        }
+    }
+
+    async function deleteJB(id) {
+        if(confirm("HAPUS PROMPT INI?")) {
+            await db.collection("jailbreaks").doc(id).delete();
+            loadJailbreaks();
+        }
+    }
+
+    function copyPrompt(text) {
+        navigator.clipboard.writeText(text);
+        alert("📋 PROMPT TERCOPY!");
+    }
+
+    function renderJailbreaks() {
+        const searchTerm = document.getElementById("searchInput")?.value.toLowerCase() || "";
+        const platformFilter = document.getElementById("platformFilter")?.value || "all";
+
+        let filtered = [...jailbreaks];
+        if(searchTerm) {
+            filtered = filtered.filter(jb =>
+                jb.title?.toLowerCase().includes(searchTerm) ||
+                jb.prompt?.toLowerCase().includes(searchTerm) ||
+                jb.tags?.some(t => t.includes(searchTerm))
+            );
+        }
+        if(platformFilter !== "all") filtered = filtered.filter(jb => jb.platform === platformFilter);
+
+        const container = document.getElementById("jailbreakList");
+        if(filtered.length === 0) {
+            container.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px;">📭 BELUM ADA PROMPT. KLIK "BAGI PROMPT"!</div>`;
+            return;
+        }
+
+        container.innerHTML = filtered.map(jb => `
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; flex-wrap:wrap;">
+                    <strong style="color:#7bcfff;">🔓 ${escapeHtml(jb.title)}</strong>
+                    <button class="del-btn" onclick="deleteJB('${jb.id}')">HAPUS</button>
+                </div>
+                <div style="margin:10px 0;">
+                    <span class="badge">🎯 ${escapeHtml(jb.platform)}</span>
+                    ${(jb.tags || []).map(t => `<span class="badge">#${escapeHtml(t)}</span>`).join('')}
+                </div>
+                <div class="prompt-text">${escapeHtml(jb.prompt)}</div>
+                <button class="copy-btn" onclick="copyPrompt(${JSON.stringify(jb.prompt)})">📋 COPY PROMPT</button>
+            </div>
+        `).join('');
+    }
+
+    function escapeHtml(str) {
+        if(!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    window.onload = loadJailbreaks;
+</script>
+</body>
+</html>
